@@ -29,118 +29,92 @@ type DataSource = {
   schema: DataColumn[];
 };
 
-type SalesData = {
+type ShipmentData = {
+  shipmentCode: string;
+  bay: string;
   product: string;
-  region: string;
-  sales: number;
-  profit: number;
-  month: string;
-  year: number;
-  customerId: number;
-  country: string;
+  quantity: number;
+  flowRate: number;
+  startTime: Date;
+  endTime: Date;
 };
 
-type LiveSalesData = SalesData & {
+type LiveShipmentData = ShipmentData & {
   timestamp: Date;
 };
 
 // Initial data
 const initialDataSources: DataSource[] = [
     { 
-        name: "Quarterly Sales CSV", 
-        type: "CSV", 
+        name: "Terminal Feed 1", 
+        type: "API", 
         size: "2.3 MB", 
         lastModified: "2 days ago", 
         enabled: true, 
         live: true,
-        rowLimit: 100000, 
-        totalRows: 100000,
+        rowLimit: 1000, 
+        totalRows: 1000,
         schema: [
+            { id: "bay", label: "Bay", type: "dimension" },
             { id: "product", label: "Product", type: "dimension" },
-            { id: "region", label: "Region", type: "dimension" },
-            { id: "month", label: "Month", type: "dimension" },
-            { id: "year", label: "Year", type: "dimension" },
-            { id: "sales", label: "Sales", type: "metric" },
-            { id: "profit", label: "Profit", type: "metric" },
+            { id: "quantity", label: "Quantity", type: "metric" },
+            { id: "flowRate", label: "Flow Rate", type: "metric" },
         ]
     },
     { 
-        name: "User Demographics", 
-        type: "Excel", 
-        size: "1.1 MB", 
-        lastModified: "5 days ago", 
-        enabled: true, 
-        live: false,
-        rowLimit: 50000, 
-        totalRows: 50000,
-        schema: [
-            { id: "country", label: "Country", type: "dimension" },
-            { id: "customerId", label: "Customer ID", type: "metric" }
-        ]
-    },
-    { 
-        name: "Web Analytics Log", 
-        type: "XML", 
+        name: "Historical Shipments", 
+        type: "CSV", 
         size: "15.8 MB", 
         lastModified: "1 week ago", 
         enabled: false, 
-        live: true,
-        rowLimit: 1000000, 
-        totalRows: 1000000,
-        schema: []
-    },
-    { 
-        name: "Customer Feedback", 
-        type: "CSV", 
-        size: "500 KB", 
-        lastModified: "2 weeks ago", 
-        enabled: true, 
         live: false,
-        rowLimit: 25000, 
-        totalRows: 25000,
-        schema: []
+        rowLimit: 100000, 
+        totalRows: 100000,
+        schema: [
+            { id: "bay", label: "Bay", type: "dimension" },
+            { id: "product", label: "Product", type: "dimension" },
+            { id: "quantity", label: "Quantity", type: "metric" },
+            { id: "flowRate", label: "Flow Rate", type: "metric" },
+        ]
     },
 ];
 
-const initialDashboardData: SalesData[] = [
-    // 2023 Data
-    { product: "Laptop", region: "North", sales: 50000, profit: 15000, month: "January", year: 2023, customerId: 101, country: "USA" },
-    { product: "Phone", region: "North", sales: 120000, profit: 40000, month: "January", year: 2023, customerId: 102, country: "USA" },
-    { product: "Tablet", region: "South", sales: 80000, profit: 25000, month: "February", year: 2023, customerId: 103, country: "Canada" },
-    { product: "Monitor", region: "South", sales: 60000, profit: 18000, month: "February", year: 2023, customerId: 104, country: "Canada" },
-    { product: "Laptop", region: "East", sales: 75000, profit: 22000, month: "March", year: 2023, customerId: 105, country: "UK" },
-    { product: "Phone", region: "East", sales: 150000, profit: 55000, month: "March", year: 2023, customerId: 106, country: "UK" },
-    { product: "Tablet", region: "West", sales: 90000, profit: 30000, month: "April", year: 2023, customerId: 107, country: "Germany" },
-    { product: "Monitor", region: "West", sales: 70000, profit: 20000, month: "April", year: 2023, customerId: 108, country: "Germany" },
-    { product: "Laptop", region: "North", sales: 55000, profit: 16000, month: "May", year: 2023, customerId: 109, country: "USA" },
-    { product: "Phone", region: "South", sales: 130000, profit: 45000, month: "May", year: 2023, customerId: 110, country: "Canada" },
-    { product: "Accessories", region: "North", sales: 20000, profit: 8000, month: "June", year: 2023, customerId: 111, country: "USA" },
-    { product: "Accessories", region: "South", sales: 25000, profit: 10000, month: "June", year: 2023, customerId: 112, country: "Canada" },
+const generateInitialData = (): ShipmentData[] => {
+    const data: ShipmentData[] = [];
+    const products = ["PROD-A95 (Unleaded Gasoline 95)", "PROD-JET (Jet Fuel A1)", "PROD-D2 (Diesel)"];
+    const bays = ["BAY-01", "BAY-02", "BAY-03", "BAY-04"];
 
-    // 2024 Data
-    { product: "Laptop", region: "North", sales: 60000, profit: 18000, month: "January", year: 2024, customerId: 113, country: "USA" },
-    { product: "Phone", region: "North", sales: 140000, profit: 48000, month: "January", year: 2024, customerId: 114, country: "USA" },
-    { product: "Tablet", region: "South", sales: 85000, profit: 28000, month: "February", year: 2024, customerId: 115, country: "Canada" },
-    { product: "Monitor", region: "South", sales: 65000, profit: 20000, month: "February", year: 2024, customerId: 116, country: "Canada" },
-    { product: "Laptop", region: "East", sales: 80000, profit: 25000, month: "March", year: 2024, customerId: 117, country: "UK" },
-    { product: "Phone", region: "East", sales: 160000, profit: 60000, month: "March", year: 2024, customerId: 118, country: "UK" },
-    { product: "Tablet", region: "West", sales: 95000, profit: 32000, month: "April", year: 2024, customerId: 119, country: "Germany" },
-    { product: "Monitor", region: "West", sales: 75000, profit: 22000, month: "April", year: 2024, customerId: 120, country: "Germany" },
-    { product: "Laptop", region: "North", sales: 65000, profit: 20000, month: "May", year: 2024, customerId: 121, country: "USA" },
-    { product: "Phone", region: "South", sales: 135000, profit: 47000, month: "May", year: 2024, customerId: 122, country: "Canada" },
-    { product: "Accessories", region: "East", sales: 30000, profit: 12000, month: "June", year: 2024, customerId: 123, country: "UK" },
-    { product: "Accessories", region: "West", sales: 35000, profit: 14000, month: "June", year: 2024, customerId: 124, country: "Germany" },
-];
+    for (let i = 0; i < 50; i++) {
+        const startTime = new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 30);
+        const endTime = new Date(startTime.getTime() + Math.random() * 1000 * 60 * 15 + 1000 * 60 * 5); // 5-20 mins later
+        const durationMinutes = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
+        const flowRate = Math.random() * 800 + 200; // 200-1000 L/min
+
+        data.push({
+            shipmentCode: `SH-${Math.floor(Math.random() * 90000) + 10000}`,
+            bay: bays[Math.floor(Math.random() * bays.length)],
+            product: products[Math.floor(Math.random() * products.length)],
+            quantity: flowRate * durationMinutes,
+            flowRate: flowRate,
+            startTime: startTime,
+            endTime: endTime,
+        });
+    }
+    return data;
+}
+
+const initialDashboardData: ShipmentData[] = generateInitialData();
+
 
 // Store state and actions
 type DashboardState = {
   // Dashboard page state
   charts: ChartConfigState[];
   setCharts: (charts: ChartConfigState[]) => void;
-  dashboardData: SalesData[];
-  liveData: LiveSalesData[];
-  addDashboardData: (newData: SalesData) => void;
-  addLiveData: (newData: LiveSalesData) => void;
+  dashboardData: ShipmentData[];
+  liveData: LiveShipmentData[];
+  addDashboardData: (newData: ShipmentData) => void;
+  addLiveData: (newData: LiveShipmentData) => void;
   
   // Data sources page state
   dataSources: DataSource[];
@@ -159,11 +133,11 @@ type DashboardState = {
 
 export const useDashboardStore = create<DashboardState>((set) => ({
   // State
-  charts: [{ id: 1, dimension: "product", metrics: ["sales"], chartType: "bar" }],
+  charts: [{ id: 1, dimension: "product", metrics: ["quantity"], chartType: "bar" }],
   dataSources: initialDataSources,
   dashboardData: initialDashboardData,
   liveData: [],
-  query: 'SELECT * FROM sales WHERE region = "North"',
+  query: 'SELECT * FROM shipments WHERE bay = "BAY-01"',
   queryResult: null,
   isQueryLoading: false,
   queryError: null,
@@ -180,6 +154,4 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 }));
 
 export { initialDashboardData };
-export type { SalesData, LiveSalesData };
-
-    
+export type { ShipmentData, LiveShipmentData };

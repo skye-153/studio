@@ -49,9 +49,9 @@ export default function LiveViewPage() {
             </div>
             <Card>
                 <CardHeader>
-                    <CardTitle>Real-Time Sales Feed</CardTitle>
+                    <CardTitle>Real-Time Terminal Feed</CardTitle>
                     <CardDescription>
-                        Displaying live data from connected sources. Updates appear automatically.
+                        Displaying live shipment data from connected sources. Updates appear automatically.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -59,24 +59,24 @@ export default function LiveViewPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Timestamp</TableHead>
+                                <TableHead>Shipment Code</TableHead>
                                 <TableHead>Product</TableHead>
-                                <TableHead>Region</TableHead>
-                                <TableHead>Country</TableHead>
-                                <TableHead className="text-right">Sales</TableHead>
-                                <TableHead className="text-right">Profit</TableHead>
+                                <TableHead>Bay</TableHead>
+                                <TableHead className="text-right">Quantity (L)</TableHead>
+                                <TableHead className="text-right">Flow Rate (L/min)</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {liveData.map((row, index) => (
                                 <TableRow key={row.timestamp.getTime()} className={index === 0 ? 'bg-accent/50 animate-pulse-once' : ''}>
                                     <TableCell>{row.timestamp.toLocaleTimeString()}</TableCell>
-                                    <TableCell className="font-medium">{row.product}</TableCell>
-                                    <TableCell>{row.region}</TableCell>
+                                    <TableCell className="font-medium">{row.shipmentCode}</TableCell>
                                     <TableCell>
-                                        <Badge variant="outline">{row.country}</Badge>
+                                        <Badge variant="outline">{row.product}</Badge>
                                     </TableCell>
-                                    <TableCell className="text-right">{row.sales.toLocaleString()}</TableCell>
-                                    <TableCell className="text-right">{row.profit.toLocaleString()}</TableCell>
+                                    <TableCell>{row.bay}</TableCell>
+                                    <TableCell className="text-right">{row.quantity.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right">{row.flowRate.toFixed(2)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -86,5 +86,3 @@ export default function LiveViewPage() {
         </>
     );
 }
-
-    

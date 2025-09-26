@@ -55,7 +55,7 @@ export default function QueryToolPage() {
             <Textarea
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="SELECT * FROM users..."
+              placeholder="SELECT * FROM shipments..."
               className="h-64 font-code"
             />
           </CardContent>

@@ -42,6 +42,7 @@ import { PlusCircle, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDashboardStore } from './store';
 import { useDataUpdater } from '@/hooks/use-data-updater';
+import type { ShipmentData } from './store';
 
 const chartTypes = [
     { value: "bar", label: "Bar Chart" },
@@ -111,9 +112,9 @@ const ChartComponent = ({ config, onConfigChange, onRemove, dimensions, metrics 
     const aggregatedData = useMemo(() => {
         if (!config.dimension) return [];
 
-        const dataMap = new Map();
+        const dataMap = new Map<string, any>();
         dashboardData.forEach(item => {
-            const key = item[config.dimension as keyof typeof item];
+            const key = item[config.dimension as keyof ShipmentData] as string;
             if (!dataMap.has(key)) {
                 const initialData = { [config.dimension]: key };
                  metrics.forEach(m => {
@@ -122,14 +123,13 @@ const ChartComponent = ({ config, onConfigChange, onRemove, dimensions, metrics 
                 dataMap.set(key, initialData);
             }
             const existing = dataMap.get(key);
-            metrics.forEach(m => {
-                existing[m.value] += (item as any)[m.value] || 0;
+            config.metrics.forEach(m => {
+                existing[m] += (item as any)[m] || 0;
             });
         });
-
-        // @ts-ignore
+        
         return Array.from(dataMap.values()).sort((a,b) => (a[config.dimension] > b[config.dimension]) ? 1 : -1);
-    }, [config.dimension, metrics, dashboardData]);
+    }, [config.dimension, config.metrics, metrics, dashboardData]);
 
     const handleDrop = (item: { value: string, type: string }) => {
         if (item.type === 'dimension') {
@@ -203,7 +203,7 @@ const ChartComponent = ({ config, onConfigChange, onRemove, dimensions, metrics 
                              <BarChart data={aggregatedData}>
                                 <CartesianGrid vertical={false} />
                                 <XAxis dataKey={config.dimension} tickLine={false} axisLine={false} tickMargin={8} />
-                                <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+                                <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => value.toLocaleString()} />
                                 <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                                 {config.metrics.map((metric) => (
                                     <Bar key={metric} dataKey={metric} fill={`var(--color-${metric})`} radius={4} />
@@ -214,7 +214,7 @@ const ChartComponent = ({ config, onConfigChange, onRemove, dimensions, metrics 
                              <LineChart data={aggregatedData}>
                                 <CartesianGrid vertical={false} />
                                 <XAxis dataKey={config.dimension} tickLine={false} axisLine={false} tickMargin={8} />
-                                <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+                                <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => value.toLocaleString()} />
                                 <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
                                  {config.metrics.map((metric) => (
                                     <Line key={metric} dataKey={metric} type="monotone" stroke={`var(--color-${metric})`} strokeWidth={2} dot={true} />
@@ -234,10 +234,10 @@ const ChartComponent = ({ config, onConfigChange, onRemove, dimensions, metrics 
                         <TableBody>
                             {aggregatedData.map((row, index) => (
                                 <TableRow key={index}>
-                                    <TableCell className="font-medium">{row[config.dimension as keyof typeof row]}</TableCell>
+                                    <TableCell className="font-medium">{row[config.dimension]}</TableCell>
                                     {config.metrics.map(m => (
                                          <TableCell key={m} className="text-right">
-                                             {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(row[m as keyof typeof row] as number)}
+                                             {row[m].toLocaleString(undefined, { maximumFractionDigits: 2 })}
                                          </TableCell>
                                     ))}
                                 </TableRow>
@@ -350,5 +350,3 @@ export default function Dashboard() {
     </>
   );
 }
-
-    
