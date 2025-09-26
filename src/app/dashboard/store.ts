@@ -2,22 +2,23 @@
 'use client';
 
 import { create } from 'zustand';
+import { getInitialDataSources, getInitialDashboardData } from '@/ai/backend';
 
 // Types
-type ChartConfigState = {
+export type ChartConfigState = {
   id: number;
   dimension: string;
   metrics: string[];
   chartType: string;
 };
 
-type DataColumn = {
+export type DataColumn = {
   id: string;
   label: string;
   type: 'dimension' | 'metric';
 }
 
-type DataSource = {
+export type DataSource = {
   name: string;
   type: string;
   size: string;
@@ -29,7 +30,7 @@ type DataSource = {
   schema: DataColumn[];
 };
 
-type ShipmentData = {
+export type ShipmentData = {
   shipmentCode: string;
   bay: string;
   product: string;
@@ -39,71 +40,9 @@ type ShipmentData = {
   endTime: Date;
 };
 
-type LiveShipmentData = ShipmentData & {
+export type LiveShipmentData = ShipmentData & {
   timestamp: Date;
 };
-
-// Initial data
-const initialDataSources: DataSource[] = [
-    { 
-        name: "Terminal Feed 1", 
-        type: "API", 
-        size: "2.3 MB", 
-        lastModified: "2 days ago", 
-        enabled: true, 
-        live: true,
-        rowLimit: 1000, 
-        totalRows: 1000,
-        schema: [
-            { id: "bay", label: "Bay", type: "dimension" },
-            { id: "product", label: "Product", type: "dimension" },
-            { id: "quantity", label: "Quantity", type: "metric" },
-            { id: "flowRate", label: "Flow Rate", type: "metric" },
-        ]
-    },
-    { 
-        name: "Historical Shipments", 
-        type: "CSV", 
-        size: "15.8 MB", 
-        lastModified: "1 week ago", 
-        enabled: false, 
-        live: false,
-        rowLimit: 100000, 
-        totalRows: 100000,
-        schema: [
-            { id: "bay", label: "Bay", type: "dimension" },
-            { id: "product", label: "Product", type: "dimension" },
-            { id: "quantity", label: "Quantity", type: "metric" },
-            { id: "flowRate", label: "Flow Rate", type: "metric" },
-        ]
-    },
-];
-
-const generateInitialData = (): ShipmentData[] => {
-    const data: ShipmentData[] = [];
-    const products = ["PROD-A95 (Unleaded Gasoline 95)", "PROD-JET (Jet Fuel A1)", "PROD-D2 (Diesel)"];
-    const bays = ["BAY-01", "BAY-02", "BAY-03", "BAY-04"];
-
-    for (let i = 0; i < 50; i++) {
-        const startTime = new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 30);
-        const endTime = new Date(startTime.getTime() + Math.random() * 1000 * 60 * 15 + 1000 * 60 * 5); // 5-20 mins later
-        const durationMinutes = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
-        const flowRate = Math.random() * 800 + 200; // 200-1000 L/min
-
-        data.push({
-            shipmentCode: `SH-${Math.floor(Math.random() * 90000) + 10000}`,
-            bay: bays[Math.floor(Math.random() * bays.length)],
-            product: products[Math.floor(Math.random() * products.length)],
-            quantity: flowRate * durationMinutes,
-            flowRate: flowRate,
-            startTime: startTime,
-            endTime: endTime,
-        });
-    }
-    return data;
-}
-
-const initialDashboardData: ShipmentData[] = generateInitialData();
 
 
 // Store state and actions
@@ -112,13 +51,19 @@ type DashboardState = {
   charts: ChartConfigState[];
   setCharts: (charts: ChartConfigState[]) => void;
   dashboardData: ShipmentData[];
+  isDashboardDataLoading: boolean;
   liveData: LiveShipmentData[];
-  addDashboardData: (newData: ShipmentData) => void;
   addLiveData: (newData: LiveShipmentData) => void;
+  fetchInitialDashboardData: () => Promise<void>;
   
   // Data sources page state
   dataSources: DataSource[];
+  isDataSourcesLoading: boolean;
   setDataSources: (dataSources: DataSource[]) => void;
+  fetchInitialDataSources: () => Promise<void>;
+  addDataSource: (dataSource: DataSource, data: any[]) => void;
+  sourceData: Map<string, any[]>;
+  addSourceRecord: (sourceName: string, record: any) => void;
 
   // Query tool page state
   query: string;
@@ -131,12 +76,28 @@ type DashboardState = {
   setIsQueryLoading: (isLoading: boolean) => void;
 };
 
-export const useDashboardStore = create<DashboardState>((set) => ({
+const recomputeDashboardData = (state: DashboardState): Partial<DashboardState> => {
+    const newDashboardData: ShipmentData[] = [];
+    state.dataSources.forEach(source => {
+        if (source.enabled) {
+            const data = state.sourceData.get(source.name);
+            if (data) {
+                newDashboardData.push(...data.slice(0, source.rowLimit));
+            }
+        }
+    });
+    return { dashboardData: newDashboardData };
+}
+
+export const useDashboardStore = create<DashboardState>((set, get) => ({
   // State
   charts: [{ id: 1, dimension: "product", metrics: ["quantity"], chartType: "bar" }],
-  dataSources: initialDataSources,
-  dashboardData: initialDashboardData,
+  dataSources: [],
+  isDataSourcesLoading: true,
+  dashboardData: [],
+  isDashboardDataLoading: true,
   liveData: [],
+  sourceData: new Map(),
   query: 'SELECT * FROM shipments WHERE bay = "BAY-01"',
   queryResult: null,
   isQueryLoading: false,
@@ -144,14 +105,41 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 
   // Actions
   setCharts: (charts) => set({ charts }),
-  setDataSources: (dataSources) => set({ dataSources }),
+  setDataSources: (dataSources) => {
+      set({ dataSources });
+      set(recomputeDashboardData(get()));
+  },
   setQuery: (query) => set({ query }),
   setQueryResult: (queryResult) => set({ queryResult }),
   setQueryError: (queryError) => set({ queryError }),
   setIsQueryLoading: (isQueryLoading) => set({ isQueryLoading }),
-  addDashboardData: (newData) => set((state) => ({ dashboardData: [newData, ...state.dashboardData] })),
-  addLiveData: (newData) => set((state) => ({ liveData: [newData, ...state.liveData].slice(0, 50) })),
+  addLiveData: (newData) => set((state) => ({ liveData: [newData, ...state.liveData].slice(0, 50) })), 
+  fetchInitialDataSources: async () => {
+    set({ isDataSourcesLoading: true });
+    const dataSources = await getInitialDataSources();
+    set({ dataSources, isDataSourcesLoading: false });
+  },
+  fetchInitialDashboardData: async () => {
+    set({ isDashboardDataLoading: true });
+    const dashboardData = await getInitialDashboardData();
+    const currentSourceData = get().sourceData;
+    currentSourceData.set("Terminal Feed 1", dashboardData);
+    set({ sourceData: currentSourceData, isDashboardDataLoading: false });
+    set(recomputeDashboardData(get()));
+  },
+  addDataSource: (dataSource, data) => {
+      const { dataSources, sourceData } = get();
+      const newSourceData = new Map(sourceData);
+      newSourceData.set(dataSource.name, data);
+      set({ dataSources: [...dataSources, dataSource], sourceData: newSourceData });
+      set(recomputeDashboardData(get()));
+  },
+  addSourceRecord: (sourceName, record) => {
+      const { sourceData } = get();
+      const newSourceData = new Map(sourceData);
+      const data = newSourceData.get(sourceName) || [];
+      newSourceData.set(sourceName, [record, ...data]);
+      set({ sourceData: newSourceData });
+      set(recomputeDashboardData(get()));
+  }
 }));
-
-export { initialDashboardData };
-export type { ShipmentData, LiveShipmentData };

@@ -12,13 +12,11 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useSidebar } from './ui/sidebar';
 import { cn } from '@/lib/utils';
 import { ChevronsLeft } from 'lucide-react';
 
 export function UserNav() {
-  const userAvatar = PlaceHolderImages.find(img => img.id === 'user-avatar-1');
   const { state, toggleSidebar } = useSidebar();
 
 
@@ -34,7 +32,6 @@ export function UserNav() {
             state === 'expanded' ? "w-full" : "size-8 p-0"
         )}>
            <Avatar className="h-8 w-8">
-            {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="@shadcn" data-ai-hint={userAvatar.imageHint} />}
             <AvatarFallback>TV</AvatarFallback>
           </Avatar>
            <div className={cn(

@@ -2,7 +2,7 @@
 "use client"
 
 import { useEffect } from 'react';
-import { useDashboardStore, initialDashboardData } from '@/app/dashboard/store';
+import { useDashboardStore } from '@/app/dashboard/store';
 import type { ShipmentData } from '@/app/dashboard/store';
 
 const generateRandomRecord = (): ShipmentData => {
@@ -27,18 +27,18 @@ const generateRandomRecord = (): ShipmentData => {
 
 
 export function useDataUpdater() {
-  const { dataSources, addDashboardData, addLiveData } = useDashboardStore();
+  const { dataSources, addSourceRecord, addLiveData } = useDashboardStore();
 
   const liveSources = dataSources.filter(ds => ds.enabled && ds.live);
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (liveSources.length > 0) {
-        // Add a new random record to simulate a live update
         const randomRecord = generateRandomRecord();
         
-        const newDashboardRecord: ShipmentData = { ...randomRecord };
-        addDashboardData(newDashboardRecord);
+        liveSources.forEach(source => {
+            addSourceRecord(source.name, randomRecord);
+        });
 
         const newLiveRecord = { ...randomRecord, timestamp: new Date() };
         addLiveData(newLiveRecord);
@@ -46,5 +46,5 @@ export function useDataUpdater() {
     }, 2000); // Add a new record every 2 seconds
 
     return () => clearInterval(interval);
-  }, [liveSources.length, addDashboardData, addLiveData]);
+  }, [liveSources.length, addSourceRecord, addLiveData]);
 }

@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { executeDataQuery } from '@/ai/flows/data-query';
+import { executeDataQuery } from '@/ai/backend';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -29,7 +29,7 @@ export default function QueryToolPage() {
     setQueryResult(null);
 
     try {
-      const response = await executeDataQuery({ query });
+      const response = await executeDataQuery(query);
       setQueryResult(response.result);
     } catch (e) {
       setQueryError('Failed to execute query. The AI model might be busy. Please try again.');

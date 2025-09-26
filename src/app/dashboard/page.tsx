@@ -98,16 +98,13 @@ const DropZone = ({ onDrop, children, className }: { onDrop: (item: any) => void
 
 const ChartComponent = ({ config, onConfigChange, onRemove, dimensions, metrics }: { config: ChartConfigState, onConfigChange: (newConfig: ChartConfigState) => void, onRemove: () => void, dimensions: {value: string, label: string}[], metrics: {value: string, label: string}[] }) => {
     const { dashboardData } = useDashboardStore();
-    const chartConfig: ChartConfig = useMemo(() => {
-        const newChartConfig: ChartConfig = {};
-        config.metrics.forEach((metric, index) => {
-            newChartConfig[metric] = {
-                label: metrics.find(m => m.value === metric)?.label,
-                color: `hsl(var(--chart-${index + 1}))`,
-            }
-        });
-        return newChartConfig;
-    }, [config.metrics, metrics]);
+    const chartConfig: ChartConfig = {};
+    config.metrics.forEach((metric, index) => {
+        chartConfig[metric] = {
+            label: metrics.find(m => m.value === metric)?.label,
+            color: `hsl(var(--chart-${index + 1}))`,
+        }
+    });
     
     const aggregatedData = useMemo(() => {
         if (!config.dimension) return [];
@@ -298,7 +295,7 @@ export default function Dashboard() {
   return (
     <>
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-2xl font-headline">Tableau-Style Dashboard</h1>
+        <h1 className="text-lg font-semibold md:text-2xl font-headline">Dashboard</h1>
          <Button onClick={addChart}>
             <PlusCircle className="mr-2 h-4 w-4" /> Add Chart
         </Button>
