@@ -13,18 +13,38 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useSidebar } from './ui/sidebar';
+import { cn } from '@/lib/utils';
+import { ChevronsLeft } from 'lucide-react';
 
 export function UserNav() {
   const userAvatar = PlaceHolderImages.find(img => img.id === 'user-avatar-1');
+  const { state, toggleSidebar } = useSidebar();
+
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-9 w-9">
+        <Button variant="ghost" className={cn(
+            "w-full justify-start items-center gap-3 p-2",
+            state === 'collapsed' && "size-8 justify-center p-0"
+        )}>
+           <Avatar className="h-8 w-8">
             {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="@shadcn" data-ai-hint={userAvatar.imageHint} />}
             <AvatarFallback>TV</AvatarFallback>
           </Avatar>
+           <div className={cn(
+               "flex flex-col items-start",
+                state === 'collapsed' && "hidden"
+           )}>
+            <span className="text-sm font-medium leading-none">Test User</span>
+            <span className="text-xs leading-none text-muted-foreground">
+              test@example.com
+            </span>
+          </div>
+          <ChevronsLeft onClick={toggleSidebar} className={cn("ml-auto size-4 shrink-0 text-muted-foreground transition-transform group-hover/sidebar:text-foreground",
+            state === 'collapsed' && 'hidden'
+          )} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
