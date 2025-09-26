@@ -1,8 +1,34 @@
-
 'use client';
 
 import { create } from 'zustand';
+import { persist, StateStorage } from 'zustand/middleware';
 import { getInitialDataSources, getInitialDashboardData } from '@/ai/backend';
+
+const storage: StateStorage = {
+  getItem: (name) => {
+    const str = localStorage.getItem(name);
+    if (!str) return null;
+    const json = JSON.parse(str);
+    return {
+      ...json,
+      state: {
+        ...json.state,
+        sourceData: new Map(json.state.sourceData),
+      },
+    };
+  },
+  setItem: (name, newValue) => {
+    const str = JSON.stringify({
+      ...newValue,
+      state: {
+        ...newValue.state,
+        sourceData: Array.from(newValue.state.sourceData.entries()),
+      },
+    });
+    localStorage.setItem(name, str);
+  },
+  removeItem: (name) => localStorage.removeItem(name),
+};
 
 // Types
 export type ChartConfigState = {
@@ -74,6 +100,10 @@ type DashboardState = {
   setQueryError: (error: string | null) => void;
   isQueryLoading: boolean;
   setIsQueryLoading: (isLoading: boolean) => void;
+
+  // Analysis page state
+  selectedDataSource: string | null;
+  setSelectedDataSource: (selectedDataSource: string | null) => void;
 };
 
 const recomputeDashboardData = (state: DashboardState): Partial<DashboardState> => {
@@ -89,57 +119,69 @@ const recomputeDashboardData = (state: DashboardState): Partial<DashboardState> 
     return { dashboardData: newDashboardData };
 }
 
-export const useDashboardStore = create<DashboardState>((set, get) => ({
-  // State
-  charts: [{ id: 1, dimension: "product", metrics: ["quantity"], chartType: "bar" }],
-  dataSources: [],
-  isDataSourcesLoading: true,
-  dashboardData: [],
-  isDashboardDataLoading: true,
-  liveData: [],
-  sourceData: new Map(),
-  query: 'SELECT * FROM shipments WHERE bay = "BAY-01"',
-  queryResult: null,
-  isQueryLoading: false,
-  queryError: null,
+export const useDashboardStore = create<DashboardState>(
+  persist(
+    (set, get) => ({
+      // State
+      charts: [{ id: 1, dimension: "product", metrics: ["quantity"], chartType: "bar" }],
+      dataSources: [],
+      isDataSourcesLoading: true,
+      dashboardData: [],
+      isDashboardDataLoading: true,
+      liveData: [],
+      sourceData: new Map(),
+      query: 'SELECT * FROM shipments WHERE bay = "BAY-01"',
+      queryResult: null,
+      isQueryLoading: false,
+      queryError: null,
 
-  // Actions
-  setCharts: (charts) => set({ charts }),
-  setDataSources: (dataSources) => {
-      set({ dataSources });
-      set(recomputeDashboardData(get()));
-  },
-  setQuery: (query) => set({ query }),
-  setQueryResult: (queryResult) => set({ queryResult }),
-  setQueryError: (queryError) => set({ queryError }),
-  setIsQueryLoading: (isQueryLoading) => set({ isQueryLoading }),
-  addLiveData: (newData) => set((state) => ({ liveData: [newData, ...state.liveData].slice(0, 50) })), 
-  fetchInitialDataSources: async () => {
-    set({ isDataSourcesLoading: true });
-    const dataSources = await getInitialDataSources();
-    set({ dataSources, isDataSourcesLoading: false });
-  },
-  fetchInitialDashboardData: async () => {
-    set({ isDashboardDataLoading: true });
-    const dashboardData = await getInitialDashboardData();
-    const currentSourceData = get().sourceData;
-    currentSourceData.set("Terminal Feed 1", dashboardData);
-    set({ sourceData: currentSourceData, isDashboardDataLoading: false });
-    set(recomputeDashboardData(get()));
-  },
-  addDataSource: (dataSource, data) => {
-      const { dataSources, sourceData } = get();
-      const newSourceData = new Map(sourceData);
-      newSourceData.set(dataSource.name, data);
-      set({ dataSources: [...dataSources, dataSource], sourceData: newSourceData });
-      set(recomputeDashboardData(get()));
-  },
-  addSourceRecord: (sourceName, record) => {
-      const { sourceData } = get();
-      const newSourceData = new Map(sourceData);
-      const data = newSourceData.get(sourceName) || [];
-      newSourceData.set(sourceName, [record, ...data]);
-      set({ sourceData: newSourceData });
-      set(recomputeDashboardData(get()));
-  }
-}));
+      // Analysis page state
+      selectedDataSource: null,
+
+      // Actions
+      setCharts: (charts) => set({ charts }),
+      setSelectedDataSource: (selectedDataSource) => set({ selectedDataSource }),
+      setDataSources: (dataSources) => {
+          set({ dataSources });
+          set(recomputeDashboardData(get()));
+      },
+      setQuery: (query) => set({ query }),
+      setQueryResult: (queryResult) => set({ queryResult }),
+      setQueryError: (queryError) => set({ queryError }),
+      setIsQueryLoading: (isQueryLoading) => set({ isQueryLoading }),
+      addLiveData: (newData) => set((state) => ({ liveData: [newData, ...state.liveData].slice(0, 50) })), 
+      fetchInitialDataSources: async () => {
+        set({ isDataSourcesLoading: true });
+        const dataSources = await getInitialDataSources();
+        set({ dataSources, isDataSourcesLoading: false });
+      },
+      fetchInitialDashboardData: async () => {
+        set({ isDashboardDataLoading: true });
+        const dashboardData = await getInitialDashboardData();
+        const currentSourceData = get().sourceData;
+        currentSourceData.set("Terminal Feed 1", dashboardData);
+        set({ sourceData: currentSourceData, isDashboardDataLoading: false });
+        set(recomputeDashboardData(get()));
+      },
+      addDataSource: (dataSource, data) => {
+          const { dataSources, sourceData } = get();
+          const newSourceData = new Map(sourceData);
+          newSourceData.set(dataSource.name, data);
+          set({ dataSources: [...dataSources, dataSource], sourceData: newSourceData });
+          set(recomputeDashboardData(get()));
+      },
+      addSourceRecord: (sourceName, record) => {
+          const { sourceData } = get();
+          const newSourceData = new Map(sourceData);
+          const data = newSourceData.get(sourceName) || [];
+          newSourceData.set(sourceName, [record, ...data]);
+          set({ sourceData: newSourceData });
+          set(recomputeDashboardData(get()));
+      }
+    }),
+    {
+      name: 'dashboard-storage',
+      storage: storage,
+    }
+  )
+);
