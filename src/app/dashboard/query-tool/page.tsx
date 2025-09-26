@@ -1,6 +1,6 @@
+
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,25 +8,33 @@ import { executeDataQuery } from '@/ai/flows/data-query';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDashboardState } from '../context/DashboardStateContext';
 
 export default function QueryToolPage() {
-  const [query, setQuery] = useState('SELECT * FROM sales WHERE region = "North"');
-  const [result, setResult] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    query,
+    setQuery,
+    queryResult,
+    setQueryResult,
+    queryError,
+    setQueryError,
+    isQueryLoading,
+    setIsQueryLoading,
+  } = useDashboardState();
+
 
   const handleExecuteQuery = async () => {
-    setIsLoading(true);
-    setError(null);
-    setResult(null);
+    setIsQueryLoading(true);
+    setQueryError(null);
+    setQueryResult(null);
 
     try {
       const response = await executeDataQuery({ query });
-      setResult(response.result);
+      setQueryResult(response.result);
     } catch (e) {
-      setError('Failed to execute query. The AI model might be busy. Please try again.');
+      setQueryError('Failed to execute query. The AI model might be busy. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsQueryLoading(false);
     }
   };
 
@@ -63,12 +71,12 @@ export default function QueryToolPage() {
           <CardContent>
             <div className="relative">
               <div className="absolute top-4 right-4">
-                 <Button onClick={handleExecuteQuery} disabled={isLoading}>
-                    {isLoading ? 'Executing...' : 'Execute Query'}
+                 <Button onClick={handleExecuteQuery} disabled={isQueryLoading}>
+                    {isQueryLoading ? 'Executing...' : 'Execute Query'}
                 </Button>
               </div>
               <div className="p-4 bg-muted rounded-md min-h-[17.5rem] font-code text-sm">
-                {isLoading && (
+                {isQueryLoading && (
                    <div className="space-y-2">
                         <Skeleton className="h-4 w-full" />
                         <Skeleton className="h-4 w-full" />
@@ -76,15 +84,15 @@ export default function QueryToolPage() {
                         <Skeleton className="h-4 w-[80%]" />
                    </div>
                 )}
-                {error && (
+                {queryError && (
                   <Alert variant="destructive">
                     <Terminal className="h-4 w-4" />
                     <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
+                    <AlertDescription>{queryError}</AlertDescription>
+                  </Aler
                 )}
-                {result && <pre className="whitespace-pre-wrap">{result}</pre>}
-                {!isLoading && !error && !result && (
+                {queryResult && <pre className="whitespace-pre-wrap">{queryResult}</pre>}
+                {!isQueryLoading && !queryError && !queryResult && (
                   <div className="flex items-center justify-center h-full text-muted-foreground">
                     Click 'Execute Query' to see results.
                   </div>

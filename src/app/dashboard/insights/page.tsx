@@ -1,7 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { aiDataInsights } from '@/ai/flows/ai-data-insights';
 import { Icons } from '@/components/icons';
 import { BrainCircuit, Send } from 'lucide-react';
+import { useDashboardState } from '../context/DashboardStateContext';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -26,42 +27,42 @@ const sampleDataContext = `
 `;
 
 export default function InsightsPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: "Hello! I can help you find inconsistencies or efficiency issues in your data. What would you like to analyze? For example, you could ask me to 'check stock levels'.",
-    },
-  ]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    insightMessages,
+    setInsightMessages,
+    insightInput,
+    setInsightInput,
+    isInsightLoading,
+    setIsInsightLoading,
+  } = useDashboardState();
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!insightInput.trim()) return;
 
-    const userMessage: Message = { role: 'user', content: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
+    const userMessage: Message = { role: 'user', content: insightInput };
+    setInsightMessages((prev) => [...prev, userMessage]);
+    setInsightInput('');
+    setIsInsightLoading(true);
 
     try {
       const result = await aiDataInsights({
-        userInput: input,
+        userInput: insightInput,
         dataContext: sampleDataContext,
       });
       const assistantMessage: Message = {
         role: 'assistant',
         content: result.insights,
       };
-      setMessages((prev) => [...prev, assistantMessage]);
+      setInsightMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       const errorMessage: Message = {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.',
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      setInsightMessages((prev) => [...prev, errorMessage]);
     } finally {
-      setIsLoading(false);
+      setIsInsightLoading(false);
     }
   };
 
@@ -83,7 +84,7 @@ export default function InsightsPage() {
         <CardContent className="flex-1 overflow-hidden">
             <ScrollArea className="h-full pr-4">
             <div className="space-y-4">
-              {messages.map((message, index) => (
+              {insightMessages.map((message, index) => (
                 <div
                   key={index}
                   className={`flex gap-3 text-sm ${
@@ -111,7 +112,7 @@ export default function InsightsPage() {
                   )}
                 </div>
               ))}
-               {isLoading && (
+               {isInsightLoading && (
                  <div className="flex gap-3 text-sm">
                     <Avatar className="w-8 h-8 border">
                       <AvatarFallback><Icons.logo className="w-5 h-5" /></AvatarFallback>
@@ -133,11 +134,11 @@ export default function InsightsPage() {
               placeholder="Type your message..."
               className="flex-1"
               autoComplete="off"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              disabled={isLoading}
+              value={insightInput}
+              onChange={(e) => setInsightInput(e.target.value)}
+              disabled={isInsightLoading}
             />
-            <Button type="submit" size="icon" disabled={isLoading}>
+            <Button type="submit" size="icon" disabled={isInsightLoading}>
               <Send className="h-4 w-4" />
               <span className="sr-only">Send</span>
             </Button>

@@ -1,6 +1,6 @@
+
 "use client"
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,16 +15,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Database, FileUp } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { useDashboardState } from "../context/DashboardStateContext";
 
-const initialDataSources = [
-    { name: "Quarterly Sales CSV", type: "CSV", size: "2.3 MB", lastModified: "2 days ago", enabled: true, rowLimit: 100000, totalRows: 100000 },
-    { name: "User Demographics", type: "Excel", size: "1.1 MB", lastModified: "5 days ago", enabled: true, rowLimit: 50000, totalRows: 50000 },
-    { name: "Web Analytics Log", type: "XML", size: "15.8 MB", lastModified: "1 week ago", enabled: false, rowLimit: 1000000, totalRows: 1000000 },
-    { name: "Customer Feedback", type: "CSV", size: "500 KB", lastModified: "2 weeks ago", enabled: true, rowLimit: 25000, totalRows: 25000 },
-];
 
 export default function DataSourcesPage() {
-  const [dataSources, setDataSources] = useState(initialDataSources);
+  const { dataSources, setDataSources } = useDashboardState();
 
   const handleToggle = (index: number) => {
     const newSources = [...dataSources];

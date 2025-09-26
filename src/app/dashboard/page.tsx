@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo } from 'react';
@@ -39,6 +40,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDashboardState } from './context/DashboardStateContext';
 
 const salesData = [
     // 2023 Data
@@ -284,9 +286,7 @@ const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartCon
 }
 
 export default function Dashboard() {
-    const [charts, setCharts] = useState<ChartConfigState[]>([
-        { id: 1, dimension: "product", metrics: ["sales"], chartType: "bar" }
-    ]);
+    const { charts, setCharts } = useDashboardState();
     
     const addChart = () => {
         const newChart: ChartConfigState = {
@@ -350,5 +350,3 @@ export default function Dashboard() {
     </>
   );
 }
-
-    
