@@ -1,4 +1,6 @@
-# Firebase Studio
+Terminal Manager 
+
+Project for 48HR Honeywell Hackathon
 
 This is a NextJS starter in Firebase Studio.
 
