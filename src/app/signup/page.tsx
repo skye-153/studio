@@ -30,7 +30,7 @@ export default function SignupPage() {
            <div className="flex justify-center mb-4">
               <Icons.logo className="w-10 h-10" />
            </div>
-          <CardTitle className="text-2xl text-center font-headline">Sign Up</CardTitle>
+          <CardTitle className="text-2xl text-center font-headline">Sign Up for DynaFlow</CardTitle>
           <CardDescription className="text-center">
             Enter your information to create an account
           </CardDescription>

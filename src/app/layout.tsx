@@ -7,7 +7,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'Terminal Vision',
+  title: 'DynaFlow',
   description: 'AI-driven data analysis and visualization platform.',
 };
 

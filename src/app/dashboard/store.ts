@@ -23,6 +23,7 @@ type DataSource = {
   size: string;
   lastModified: string;
   enabled: boolean;
+  live: boolean;
   rowLimit: number;
   totalRows: number;
   schema: DataColumn[];
@@ -36,6 +37,7 @@ const initialDataSources: DataSource[] = [
         size: "2.3 MB", 
         lastModified: "2 days ago", 
         enabled: true, 
+        live: true,
         rowLimit: 100000, 
         totalRows: 100000,
         schema: [
@@ -53,6 +55,7 @@ const initialDataSources: DataSource[] = [
         size: "1.1 MB", 
         lastModified: "5 days ago", 
         enabled: true, 
+        live: false,
         rowLimit: 50000, 
         totalRows: 50000,
         schema: [
@@ -66,6 +69,7 @@ const initialDataSources: DataSource[] = [
         size: "15.8 MB", 
         lastModified: "1 week ago", 
         enabled: false, 
+        live: true,
         rowLimit: 1000000, 
         totalRows: 1000000,
         schema: []
@@ -76,6 +80,7 @@ const initialDataSources: DataSource[] = [
         size: "500 KB", 
         lastModified: "2 weeks ago", 
         enabled: true, 
+        live: false,
         rowLimit: 25000, 
         totalRows: 25000,
         schema: []

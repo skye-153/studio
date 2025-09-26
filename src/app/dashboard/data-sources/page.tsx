@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Database, FileUp } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useDashboardStore } from "../store";
@@ -26,6 +27,12 @@ export default function DataSourcesPage() {
     newSources[index].enabled = !newSources[index].enabled;
     setDataSources(newSources);
   };
+  
+  const handleLiveToggle = (index: number) => {
+    const newSources = [...dataSources];
+    newSources[index].live = !newSources[index].live;
+    setDataSources(newSources);
+  }
 
   const handleRowLimitChange = (index: number, percentage: number) => {
     const newSources = [...dataSources];
@@ -70,6 +77,18 @@ export default function DataSourcesPage() {
                                     {source.enabled ? "Enabled" : "Disabled"}
                                 </Label>
                             </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id={`live-${index}`}
+                                    checked={source.live}
+                                    onCheckedChange={() => handleLiveToggle(index)}
+                                    aria-label="Toggle live data"
+                                    disabled={!source.enabled}
+                                />
+                                <Label htmlFor={`live-${index}`} className="text-sm font-medium">
+                                    Live
+                                </Label>
+                           </div>
                             <div className="flex items-center gap-3 w-48">
                                 <Slider
                                   id={`rows-${index}`}

@@ -9,6 +9,7 @@ import {
   Database,
   SquareTerminal,
   PanelLeft,
+  Activity,
 } from 'lucide-react';
 
 import {
@@ -39,6 +40,7 @@ export default function DashboardLayout({
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
     { href: '/dashboard/analysis', icon: BarChart3, label: 'Analysis' },
     { href: '/dashboard/data-sources', icon: Database, label: 'Data Sources' },
+    { href: '/dashboard/live-view', icon: Activity, label: 'Live View' },
     { href: '/dashboard/query-tool', icon: SquareTerminal, label: 'Query Tool' },
   ];
 
@@ -48,7 +50,7 @@ export default function DashboardLayout({
           <SidebarHeader>
             <div className="flex items-center gap-2 p-2">
               <Icons.logo className="h-6 w-6" />
-              <span className="font-headline text-lg">Terminal Vision</span>
+              <span className="font-headline text-lg">DynaFlow</span>
             </div>
           </SidebarHeader>
           <SidebarContent>
