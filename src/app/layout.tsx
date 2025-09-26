@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   description: 'AI-driven data analysis and visualization platform.',
 };
 
+import { DashboardProvider } from '@/context/dashboard-context';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -20,7 +22,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-body antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+          <DashboardProvider>{children}</DashboardProvider>
           <Toaster />
         </ThemeProvider>
       </body>

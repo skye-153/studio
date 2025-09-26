@@ -8,8 +8,10 @@ import { executeDataQuery } from '@/ai/flows/data-query';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDashboard } from "@/context/dashboard-context";
 
 export default function QueryToolPage() {
+  const { dataSources } = useDashboard();
   const [query, setQuery] = useState('SELECT * FROM sales WHERE region = "North"');
   const [result, setResult] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,8 +23,15 @@ export default function QueryToolPage() {
     setResult(null);
 
     try {
-      const response = await executeDataQuery({ query });
-      setResult(response.result);
+      const enabledDataSource = dataSources.find(ds => ds.enabled);
+      if (enabledDataSource) {
+        const limit = enabledDataSource.limit;
+        const limitedQuery = `${query} LIMIT ${Math.round(enabledDataSource.size * (limit / 100))}`;
+        const response = await executeDataQuery({ query: limitedQuery });
+        setResult(response.result);
+      } else {
+        setError('No enabled data source found.');
+      }
     } catch (e) {
       setError('Failed to execute query. The AI model might be busy. Please try again.');
     } finally {

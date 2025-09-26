@@ -29,6 +29,7 @@ import { UserNav } from '@/components/user-nav';
 import { Icons } from '@/components/icons';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { usePathname } from 'next/navigation';
+import { DashboardProvider } from '@/context/dashboard-context';
 
 export default function DashboardLayout({
   children,

@@ -1,6 +1,7 @@
+
 "use client"
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -28,7 +29,7 @@ import {
   ChartTooltipContent,
   ChartConfig,
 } from "@/components/ui/chart"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Line, LineChart } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Line, LineChart, Pie, PieChart, Scatter, ScatterChart, Legend } from "recharts"
 import {
   Select,
   SelectContent,
@@ -37,55 +38,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const salesData = [
-    // 2023 Data
-    { product: "Laptop", region: "North", sales: 50000, profit: 15000, month: "January", year: 2023 },
-    { product: "Phone", region: "North", sales: 120000, profit: 40000, month: "January", year: 2023 },
-    { product: "Tablet", region: "South", sales: 80000, profit: 25000, month: "February", year: 2023 },
-    { product: "Monitor", region: "South", sales: 60000, profit: 18000, month: "February", year: 2023 },
-    { product: "Laptop", region: "East", sales: 75000, profit: 22000, month: "March", year: 2023 },
-    { product: "Phone", region: "East", sales: 150000, profit: 55000, month: "March", year: 2023 },
-    { product: "Tablet", region: "West", sales: 90000, profit: 30000, month: "April", year: 2023 },
-    { product: "Monitor", region: "West", sales: 70000, profit: 20000, month: "April", year: 2023 },
-    { product: "Laptop", region: "North", sales: 55000, profit: 16000, month: "May", year: 2023 },
-    { product: "Phone", region: "South", sales: 130000, profit: 45000, month: "May", year: 2023 },
-    { product: "Accessories", region: "North", sales: 20000, profit: 8000, month: "June", year: 2023 },
-    { product: "Accessories", region: "South", sales: 25000, profit: 10000, month: "June", year: 2023 },
-
-    // 2024 Data
-    { product: "Laptop", region: "North", sales: 60000, profit: 18000, month: "January", year: 2024 },
-    { product: "Phone", region: "North", sales: 140000, profit: 48000, month: "January", year: 2024 },
-    { product: "Tablet", region: "South", sales: 85000, profit: 28000, month: "February", year: 2024 },
-    { product: "Monitor", region: "South", sales: 65000, profit: 20000, month: "February", year: 2024 },
-    { product: "Laptop", region: "East", sales: 80000, profit: 25000, month: "March", year: 2024 },
-    { product: "Phone", region: "East", sales: 160000, profit: 60000, month: "March", year: 2024 },
-    { product: "Tablet", region: "West", sales: 95000, profit: 32000, month: "April", year: 2024 },
-    { product: "Monitor", region: "West", sales: 75000, profit: 22000, month: "April", year: 2024 },
-    { product: "Laptop", region: "North", sales: 65000, profit: 20000, month: "May", year: 2024 },
-    { product: "Phone", region: "South", sales: 135000, profit: 47000, month: "May", year: 2024 },
-    { product: "Accessories", region: "East", sales: 30000, profit: 12000, month: "June", year: 2024 },
-    { product: "Accessories", region: "West", sales: 35000, profit: 14000, month: "June", year: 2024 },
-];
-
-
-const dimensions = [
-    { value: "product", label: "Product" },
-    { value: "region", label: "Region" },
-    { value: "month", label: "Month" },
-    { value: "year", label: "Year" },
-]
-
-const metrics = [
-    { value: "sales", label: "Sales" },
-    { value: "profit", label: "Profit" },
-]
 
 const chartTypes = [
     { value: "bar", label: "Bar Chart" },
     { value: "line", label: "Line Chart" },
+    { value: "pie", label: "Pie Chart" },
+    { value: "scatter", label: "Scatter Plot" },
 ]
 
 type ChartConfigState = {
@@ -93,6 +53,14 @@ type ChartConfigState = {
     dimension: string;
     metrics: string[];
     chartType: string;
+}
+
+interface DataSource {
+    fileName: string;
+    size: number;
+    lastModified: string;
+    dimensions: string[];
+    metrics: string[];
 }
 
 const DraggableItem = ({ item, type }: { item: { value: string, label: string }, type: string }) => (
@@ -135,7 +103,47 @@ const DropZone = ({ onDrop, children, className }: { onDrop: (item: any) => void
     )
 }
 
-const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartConfigState, onConfigChange: (newConfig: ChartConfigState) => void, onRemove: () => void }) => {
+const ChartComponent = ({ config, onConfigChange, onRemove, fileName, dimensions, metrics }: { config: ChartConfigState, onConfigChange: (newConfig: ChartConfigState) => void, onRemove: () => void, fileName: string, dimensions: {value: string, label: string}[], metrics: {value: string, label: string}[] }) => {
+    const [aggregatedData, setAggregatedData] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!config.dimension || config.metrics.length === 0 || !fileName) {
+                setAggregatedData([]);
+                return;
+            }
+            setIsLoading(true);
+            try {
+                const response = await fetch('/api/aggregate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fileName,
+                        dimension: config.dimension,
+                        metrics: config.metrics,
+                        chartType: config.chartType,
+                    }),
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setAggregatedData(data);
+                } else {
+                    setAggregatedData([]);
+                    console.error("Failed to fetch aggregated data");
+                }
+            } catch (error) {
+                setAggregatedData([]);
+                console.error("Error fetching aggregated data:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [config, fileName]);
 
     const chartConfig: ChartConfig = useMemo(() => {
         const newChartConfig: ChartConfig = {};
@@ -146,22 +154,7 @@ const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartCon
             }
         });
         return newChartConfig;
-    }, [config.metrics]);
-    
-    const aggregatedData = useMemo(() => {
-        const dataMap = new Map();
-        salesData.forEach(item => {
-            const key = item[config.dimension as keyof typeof item];
-            if (!dataMap.has(key)) {
-                dataMap.set(key, { ...item, sales: 0, profit: 0 });
-            }
-            const existing = dataMap.get(key);
-            existing.sales += item.sales;
-            existing.profit += item.profit;
-        });
-
-        return Array.from(dataMap.values()).sort((a,b) => (a[config.dimension as keyof typeof a] > b[config.dimension as keyof typeof b]) ? 1 : -1);
-    }, [config.dimension]);
+    }, [config.metrics, metrics]);
 
     const handleDrop = (item: { value: string, type: string }) => {
         if (item.type === 'dimension') {
@@ -223,7 +216,12 @@ const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartCon
                     </Select>
                  </div>
             </CardHeader>
-            <CardContent className="flex-1">
+            <CardContent className="flex-1 relative">
+                {isLoading && (
+                    <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                )}
                  <Tabs defaultValue="visualize">
                     <TabsList>
                         <TabsTrigger value="visualize">Visualize</TabsTrigger>
@@ -253,6 +251,22 @@ const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartCon
                                 ))}
                             </LineChart>
                           )}
+                          {config.chartType === 'pie' && (
+                            <PieChart>
+                                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                                <Pie data={aggregatedData} dataKey={config.metrics[0]} nameKey={config.dimension} cx="50%" cy="50%" outerRadius={120} fill="var(--color-primary)" label />
+                            </PieChart>
+                          )}
+                          {config.chartType === 'scatter' && (
+                            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                                <CartesianGrid />
+                                <XAxis type="number" dataKey={config.metrics[0]} name={config.metrics[0]} />
+                                <YAxis type="number" dataKey={config.metrics[1]} name={config.metrics[1]} />
+                                <ChartTooltip cursor={{ strokeDasharray: '3 3' }} content={<ChartTooltipContent />} />
+                                <Legend />
+                                <Scatter name={config.dimension} data={aggregatedData} fill="var(--color-primary)" />
+                            </ScatterChart>
+                          )}
                       </ChartContainer>
                     </TabsContent>
                     <TabsContent value="raw_data" className="mt-6">
@@ -269,7 +283,7 @@ const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartCon
                                     <TableCell className="font-medium">{row[config.dimension as keyof typeof row]}</TableCell>
                                     {config.metrics.map(m => (
                                          <TableCell key={m} className="text-right">
-                                             {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(row[m as keyof typeof row] as number)}
+                                             {typeof row[m] === 'number' ? new Intl.NumberFormat('en-US').format(row[m as keyof typeof row] as number) : row[m]}
                                          </TableCell>
                                     ))}
                                 </TableRow>
@@ -284,15 +298,46 @@ const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartCon
 }
 
 export default function Dashboard() {
-    const [charts, setCharts] = useState<ChartConfigState[]>([
-        { id: 1, dimension: "product", metrics: ["sales"], chartType: "bar" }
-    ]);
+    const [charts, setCharts] = useState<ChartConfigState[]>([]);
+    const [dataSources, setDataSources] = useState<DataSource[]>([]);
+    const [selectedDataSource, setSelectedDataSource] = useState<DataSource | null>(null);
+
+    useEffect(() => {
+        const fetchSources = async () => {
+            try {
+                const res = await fetch('/api/data');
+                if(res.ok) {
+                    const data = await res.json();
+                    setDataSources(data.filter(ds => ds.enabled));
+                }
+            } catch (error) {
+                console.error("Failed to fetch data sources", error);
+            }
+        };
+        fetchSources();
+    }, []);
+
+    const handleDataSourceChange = async (fileName: string) => {
+        const source = dataSources.find(ds => ds.fileName === fileName);
+        if (source) {
+            setSelectedDataSource(source);
+            // Reset charts with default values from the new data source
+            const newChart: ChartConfigState = {
+                id: Date.now(),
+                dimension: source.dimensions[0] || '',
+                metrics: source.metrics.length > 0 ? [source.metrics[0]] : [],
+                chartType: 'bar'
+            };
+            setCharts([newChart]);
+        }
+    };
     
     const addChart = () => {
+        if (!selectedDataSource) return;
         const newChart: ChartConfigState = {
             id: Date.now(),
-            dimension: 'region',
-            metrics: ['profit'],
+            dimension: selectedDataSource.dimensions[0] || '',
+            metrics: selectedDataSource.metrics.length > 0 ? [selectedDataSource.metrics[0]] : [],
             chartType: 'line'
         };
         setCharts([...charts, newChart]);
@@ -305,50 +350,80 @@ export default function Dashboard() {
     const removeChart = (id: number) => {
         setCharts(charts.filter(c => c.id !== id));
     }
+
+    const dimensions = useMemo(() => selectedDataSource?.dimensions.map(d => ({ value: d, label: d })) || [], [selectedDataSource]);
+    const metrics = useMemo(() => selectedDataSource?.metrics.map(m => ({ value: m, label: m })) || [], [selectedDataSource]);
     
   return (
     <>
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-2xl font-headline">Tableau-Style Dashboard</h1>
-         <Button onClick={addChart}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add Chart
-        </Button>
+        <div className='flex items-center gap-4'>
+            <Select onValueChange={handleDataSourceChange} value={selectedDataSource?.fileName}>
+                <SelectTrigger className='w-48'>
+                    <SelectValue placeholder="Select a Data Source" />
+                </SelectTrigger>
+                <SelectContent>
+                    {dataSources.map(ds => <SelectItem key={ds.fileName} value={ds.fileName}>{ds.fileName}</SelectItem>)}
+                </SelectContent>
+            </Select>
+            <Button onClick={addChart} disabled={!selectedDataSource}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Chart
+            </Button>
+        </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start mt-6">
         <Card className="lg:col-span-1">
             <CardHeader>
                 <CardTitle>Variables</CardTitle>
                 <CardDescription>Drag these to the chart areas.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">
-                <div>
-                    <h3 className="font-semibold mb-2 text-sm">Dimensions</h3>
-                    <div className="grid gap-2">
-                        {dimensions.map(d => <DraggableItem key={d.value} item={d} type="dimension" />)}
-                    </div>
-                </div>
-                 <div>
-                    <h3 className="font-semibold mb-2 text-sm">Metrics</h3>
-                    <div className="grid gap-2">
-                        {metrics.map(m => <DraggableItem key={m.value} item={m} type="metric" />)}
-                    </div>
-                </div>
+                {selectedDataSource ? (
+                    <>
+                        <div>
+                            <h3 className="font-semibold mb-2 text-sm">Dimensions</h3>
+                            <div className="grid gap-2">
+                                {dimensions.map(d => <DraggableItem key={d.value} item={d} type="dimension" />)}
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className="font-semibold mb-2 text-sm">Metrics</h3>
+                            <div className="grid gap-2">
+                                {metrics.map(m => <DraggableItem key={m.value} item={m} type="metric" />)}
+                            </div>
+                        </div>
+                    </> 
+                ) : (
+                    <div className='text-center text-muted-foreground py-8'>Please select a data source.</div>
+                )}
             </CardContent>
         </Card>
         
         <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-2 gap-6">
-            {charts.map(chart => (
-                <ChartComponent 
-                    key={chart.id} 
-                    config={chart}
-                    onConfigChange={(newConfig) => updateChart(chart.id, newConfig)}
-                    onRemove={() => removeChart(chart.id)}
-                />
-            ))}
+            {selectedDataSource ? (
+                charts.length > 0 ? charts.map(chart => (
+                    <ChartComponent 
+                        key={chart.id} 
+                        config={chart}
+                        onConfigChange={(newConfig) => updateChart(chart.id, newConfig)}
+                        onRemove={() => removeChart(chart.id)}
+                        fileName={selectedDataSource.fileName}
+                        dimensions={dimensions}
+                        metrics={metrics}
+                    />
+                )) : (
+                    <div className='col-span-full text-center text-muted-foreground py-16'>
+                        No charts to display. Click "Add Chart" to get started.
+                    </div>
+                )
+            ) : (
+                <div className='col-span-full text-center text-muted-foreground py-16'>
+                    Please select a data source to begin visualizing your data.
+                </div>
+            )}
         </div>
       </div>
     </>
   );
 }
-
-    
