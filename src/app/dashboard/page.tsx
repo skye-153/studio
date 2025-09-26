@@ -41,36 +41,7 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDashboardStore } from './store';
-
-const salesData = [
-    // 2023 Data
-    { product: "Laptop", region: "North", sales: 50000, profit: 15000, month: "January", year: 2023, customerId: 101, country: "USA" },
-    { product: "Phone", region: "North", sales: 120000, profit: 40000, month: "January", year: 2023, customerId: 102, country: "USA" },
-    { product: "Tablet", region: "South", sales: 80000, profit: 25000, month: "February", year: 2023, customerId: 103, country: "Canada" },
-    { product: "Monitor", region: "South", sales: 60000, profit: 18000, month: "February", year: 2023, customerId: 104, country: "Canada" },
-    { product: "Laptop", region: "East", sales: 75000, profit: 22000, month: "March", year: 2023, customerId: 105, country: "UK" },
-    { product: "Phone", region: "East", sales: 150000, profit: 55000, month: "March", year: 2023, customerId: 106, country: "UK" },
-    { product: "Tablet", region: "West", sales: 90000, profit: 30000, month: "April", year: 2023, customerId: 107, country: "Germany" },
-    { product: "Monitor", region: "West", sales: 70000, profit: 20000, month: "April", year: 2023, customerId: 108, country: "Germany" },
-    { product: "Laptop", region: "North", sales: 55000, profit: 16000, month: "May", year: 2023, customerId: 109, country: "USA" },
-    { product: "Phone", region: "South", sales: 130000, profit: 45000, month: "May", year: 2023, customerId: 110, country: "Canada" },
-    { product: "Accessories", region: "North", sales: 20000, profit: 8000, month: "June", year: 2023, customerId: 111, country: "USA" },
-    { product: "Accessories", region: "South", sales: 25000, profit: 10000, month: "June", year: 2023, customerId: 112, country: "Canada" },
-
-    // 2024 Data
-    { product: "Laptop", region: "North", sales: 60000, profit: 18000, month: "January", year: 2024, customerId: 113, country: "USA" },
-    { product: "Phone", region: "North", sales: 140000, profit: 48000, month: "January", year: 2024, customerId: 114, country: "USA" },
-    { product: "Tablet", region: "South", sales: 85000, profit: 28000, month: "February", year: 2024, customerId: 115, country: "Canada" },
-    { product: "Monitor", region: "South", sales: 65000, profit: 20000, month: "February", year: 2024, customerId: 116, country: "Canada" },
-    { product: "Laptop", region: "East", sales: 80000, profit: 25000, month: "March", year: 2024, customerId: 117, country: "UK" },
-    { product: "Phone", region: "East", sales: 160000, profit: 60000, month: "March", year: 2024, customerId: 118, country: "UK" },
-    { product: "Tablet", region: "West", sales: 95000, profit: 32000, month: "April", year: 2024, customerId: 119, country: "Germany" },
-    { product: "Monitor", region: "West", sales: 75000, profit: 22000, month: "April", year: 2024, customerId: 120, country: "Germany" },
-    { product: "Laptop", region: "North", sales: 65000, profit: 20000, month: "May", year: 2024, customerId: 121, country: "USA" },
-    { product: "Phone", region: "South", sales: 135000, profit: 47000, month: "May", year: 2024, customerId: 122, country: "Canada" },
-    { product: "Accessories", region: "East", sales: 30000, profit: 12000, month: "June", year: 2024, customerId: 123, country: "UK" },
-    { product: "Accessories", region: "West", sales: 35000, profit: 14000, month: "June", year: 2024, customerId: 124, country: "Germany" },
-];
+import { useDataUpdater } from '@/hooks/use-data-updater';
 
 const chartTypes = [
     { value: "bar", label: "Bar Chart" },
@@ -125,7 +96,7 @@ const DropZone = ({ onDrop, children, className }: { onDrop: (item: any) => void
 }
 
 const ChartComponent = ({ config, onConfigChange, onRemove, dimensions, metrics }: { config: ChartConfigState, onConfigChange: (newConfig: ChartConfigState) => void, onRemove: () => void, dimensions: {value: string, label: string}[], metrics: {value: string, label: string}[] }) => {
-
+    const { dashboardData } = useDashboardStore();
     const chartConfig: ChartConfig = useMemo(() => {
         const newChartConfig: ChartConfig = {};
         config.metrics.forEach((metric, index) => {
@@ -141,7 +112,7 @@ const ChartComponent = ({ config, onConfigChange, onRemove, dimensions, metrics 
         if (!config.dimension) return [];
 
         const dataMap = new Map();
-        salesData.forEach(item => {
+        dashboardData.forEach(item => {
             const key = item[config.dimension as keyof typeof item];
             if (!dataMap.has(key)) {
                 const initialData = { [config.dimension]: key };
@@ -158,7 +129,7 @@ const ChartComponent = ({ config, onConfigChange, onRemove, dimensions, metrics 
 
         // @ts-ignore
         return Array.from(dataMap.values()).sort((a,b) => (a[config.dimension] > b[config.dimension]) ? 1 : -1);
-    }, [config.dimension, metrics]);
+    }, [config.dimension, metrics, dashboardData]);
 
     const handleDrop = (item: { value: string, type: string }) => {
         if (item.type === 'dimension') {
@@ -282,6 +253,7 @@ const ChartComponent = ({ config, onConfigChange, onRemove, dimensions, metrics 
 
 export default function Dashboard() {
     const { charts, setCharts, dataSources } = useDashboardStore();
+    useDataUpdater();
     
     const { dimensions, metrics } = useMemo(() => {
         const activeSources = dataSources.filter(ds => ds.enabled);
@@ -378,3 +350,5 @@ export default function Dashboard() {
     </>
   );
 }
+
+    
