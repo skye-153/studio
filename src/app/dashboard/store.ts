@@ -28,11 +28,6 @@ type DataSource = {
   schema: DataColumn[];
 };
 
-type Message = {
-  role: 'user' | 'assistant';
-  content: string;
-};
-
 // Initial data
 const initialDataSources: DataSource[] = [
     { 
@@ -87,13 +82,6 @@ const initialDataSources: DataSource[] = [
     },
 ];
 
-const initialMessages: Message[] = [
-  {
-    role: 'assistant',
-    content: "Hello! I can help you find inconsistencies or efficiency issues in your data. What would you like to analyze? For example, you could ask me to 'check stock levels'.",
-  },
-];
-
 // Store state and actions
 type DashboardState = {
   // Dashboard page state
@@ -103,14 +91,6 @@ type DashboardState = {
   // Data sources page state
   dataSources: DataSource[];
   setDataSources: (dataSources: DataSource[]) => void;
-
-  // Insights page state
-  insightMessages: Message[];
-  setInsightMessages: (messages: Message[]) => void;
-  insightInput: string;
-  setInsightInput: (input: string) => void;
-  isInsightLoading: boolean;
-  setIsInsightLoading: (isLoading: boolean) => void;
 
   // Query tool page state
   query: string;
@@ -127,9 +107,6 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   // State
   charts: [{ id: 1, dimension: "product", metrics: ["sales"], chartType: "bar" }],
   dataSources: initialDataSources,
-  insightMessages: initialMessages,
-  insightInput: '',
-  isInsightLoading: false,
   query: 'SELECT * FROM sales WHERE region = "North"',
   queryResult: null,
   isQueryLoading: false,
@@ -138,9 +115,6 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   // Actions
   setCharts: (charts) => set({ charts }),
   setDataSources: (dataSources) => set({ dataSources }),
-  setInsightMessages: (insightMessages) => set({ insightMessages }),
-  setInsightInput: (insightInput) => set({ insightInput }),
-  setIsInsightLoading: (isInsightLoading) => set({ isInsightLoading }),
   setQuery: (query) => set({ query }),
   setQueryResult: (queryResult) => set({ queryResult }),
   setQueryError: (queryError) => set({ queryError }),

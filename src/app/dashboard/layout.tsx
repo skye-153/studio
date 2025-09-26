@@ -7,7 +7,6 @@ import {
   Home,
   BarChart3,
   Database,
-  BrainCircuit,
   SquareTerminal,
   PanelLeft,
 } from 'lucide-react';
@@ -40,7 +39,6 @@ export default function DashboardLayout({
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
     { href: '/dashboard/analysis', icon: BarChart3, label: 'Analysis' },
     { href: '/dashboard/data-sources', icon: Database, label: 'Data Sources' },
-    { href: '/dashboard/insights', icon: BrainCircuit, label: 'AI Insights' },
     { href: '/dashboard/query-tool', icon: SquareTerminal, label: 'Query Tool' },
   ];
 
