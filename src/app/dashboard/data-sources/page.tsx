@@ -14,12 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Database, FileUp } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 
 const initialDataSources = [
-    { name: "Quarterly Sales CSV", type: "CSV", size: "2.3 MB", lastModified: "2 days ago", enabled: true, rowLimit: 100000 },
-    { name: "User Demographics", type: "Excel", size: "1.1 MB", lastModified: "5 days ago", enabled: true, rowLimit: 50000 },
-    { name: "Web Analytics Log", type: "XML", size: "15.8 MB", lastModified: "1 week ago", enabled: false, rowLimit: 1000000 },
-    { name: "Customer Feedback", type: "CSV", size: "500 KB", lastModified: "2 weeks ago", enabled: true, rowLimit: 25000 },
+    { name: "Quarterly Sales CSV", type: "CSV", size: "2.3 MB", lastModified: "2 days ago", enabled: true, rowLimit: 100000, totalRows: 100000 },
+    { name: "User Demographics", type: "Excel", size: "1.1 MB", lastModified: "5 days ago", enabled: true, rowLimit: 50000, totalRows: 50000 },
+    { name: "Web Analytics Log", type: "XML", size: "15.8 MB", lastModified: "1 week ago", enabled: false, rowLimit: 1000000, totalRows: 1000000 },
+    { name: "Customer Feedback", type: "CSV", size: "500 KB", lastModified: "2 weeks ago", enabled: true, rowLimit: 25000, totalRows: 25000 },
 ];
 
 export default function DataSourcesPage() {
@@ -31,10 +32,10 @@ export default function DataSourcesPage() {
     setDataSources(newSources);
   };
 
-  const handleRowLimitChange = (index: number, value: string) => {
+  const handleRowLimitChange = (index: number, percentage: number) => {
     const newSources = [...dataSources];
-    const numericValue = parseInt(value, 10);
-    newSources[index].rowLimit = isNaN(numericValue) ? 0 : numericValue;
+    const newRowLimit = Math.round((newSources[index].totalRows * percentage) / 100);
+    newSources[index].rowLimit = newRowLimit;
     setDataSources(newSources);
   }
 
@@ -74,18 +75,20 @@ export default function DataSourcesPage() {
                                     {source.enabled ? "Enabled" : "Disabled"}
                                 </Label>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Label htmlFor={`rows-${index}`} className="text-sm font-medium sr-only">Row Limit</Label>
-                                <Input
-                                    id={`rows-${index}`}
-                                    type="number"
-                                    value={source.rowLimit}
-                                    onChange={(e) => handleRowLimitChange(index, e.target.value)}
-                                    className="w-24 h-9"
-                                    placeholder="Rows"
-                                    disabled={!source.enabled}
+                            <div className="flex items-center gap-3 w-48">
+                                <Slider
+                                  id={`rows-${index}`}
+                                  value={[(source.rowLimit / source.totalRows) * 100]}
+                                  onValueChange={([value]) => handleRowLimitChange(index, value)}
+                                  max={100}
+                                  step={1}
+                                  className="flex-1"
+                                  disabled={!source.enabled}
                                 />
-                                <span className="text-xs text-muted-foreground">rows</span>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-sm font-medium w-20 text-right">{source.rowLimit.toLocaleString()}</span>
+                                    <span className="text-xs text-muted-foreground">rows</span>
+                                </div>
                            </div>
                         </div>
                     </div>
