@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,16 +12,32 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Database, FileUp, Share2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Database, FileUp } from "lucide-react";
 
-const dataSources = [
-    { name: "Quarterly Sales CSV", type: "CSV", size: "2.3 MB", lastModified: "2 days ago" },
-    { name: "User Demographics", type: "Excel", size: "1.1 MB", lastModified: "5 days ago" },
-    { name: "Web Analytics Log", type: "XML", size: "15.8 MB", lastModified: "1 week ago" },
-    { name: "Customer Feedback", type: "CSV", size: "500 KB", lastModified: "2 weeks ago" },
+const initialDataSources = [
+    { name: "Quarterly Sales CSV", type: "CSV", size: "2.3 MB", lastModified: "2 days ago", enabled: true, rowLimit: 100000 },
+    { name: "User Demographics", type: "Excel", size: "1.1 MB", lastModified: "5 days ago", enabled: true, rowLimit: 50000 },
+    { name: "Web Analytics Log", type: "XML", size: "15.8 MB", lastModified: "1 week ago", enabled: false, rowLimit: 1000000 },
+    { name: "Customer Feedback", type: "CSV", size: "500 KB", lastModified: "2 weeks ago", enabled: true, rowLimit: 25000 },
 ];
 
 export default function DataSourcesPage() {
+  const [dataSources, setDataSources] = useState(initialDataSources);
+
+  const handleToggle = (index: number) => {
+    const newSources = [...dataSources];
+    newSources[index].enabled = !newSources[index].enabled;
+    setDataSources(newSources);
+  };
+
+  const handleRowLimitChange = (index: number, value: string) => {
+    const newSources = [...dataSources];
+    const numericValue = parseInt(value, 10);
+    newSources[index].rowLimit = isNaN(numericValue) ? 0 : numericValue;
+    setDataSources(newSources);
+  }
+
   return (
     <>
       <div className="flex items-center">
@@ -33,19 +52,41 @@ export default function DataSourcesPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4">
+            <div className="grid gap-6">
                 {dataSources.map((source, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors">
+                    <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors gap-4">
                         <div className="flex items-center gap-4">
                             <Database className="h-6 w-6 text-muted-foreground" />
                             <div>
                                 <div className="font-semibold">{source.name}</div>
-                                <div className="text-sm text-muted-foreground">{source.type} &middot; {source.size}</div>
+                                <div className="text-sm text-muted-foreground">{source.type} &middot; {source.size} &middot; {source.lastModified}</div>
                             </div>
                         </div>
-                        <div className="text-right">
-                             <div className="text-sm font-medium">Synced</div>
-                             <div className="text-xs text-muted-foreground">{source.lastModified}</div>
+                        <div className="flex items-center gap-4 ml-auto sm:ml-0">
+                           <div className="flex items-center space-x-2">
+                                <Switch
+                                    id={`enabled-${index}`}
+                                    checked={source.enabled}
+                                    onCheckedChange={() => handleToggle(index)}
+                                    aria-label="Enable or disable data source"
+                                />
+                                <Label htmlFor={`enabled-${index}`} className="text-sm font-medium">
+                                    {source.enabled ? "Enabled" : "Disabled"}
+                                </Label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Label htmlFor={`rows-${index}`} className="text-sm font-medium sr-only">Row Limit</Label>
+                                <Input
+                                    id={`rows-${index}`}
+                                    type="number"
+                                    value={source.rowLimit}
+                                    onChange={(e) => handleRowLimitChange(index, e.target.value)}
+                                    className="w-24 h-9"
+                                    placeholder="Rows"
+                                    disabled={!source.enabled}
+                                />
+                                <span className="text-xs text-muted-foreground">rows</span>
+                           </div>
                         </div>
                     </div>
                 ))}
