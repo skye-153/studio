@@ -23,11 +23,15 @@ export function UserNav() {
 
 
   return (
+    <div className={cn(
+      "flex w-full items-center",
+       state === 'collapsed' && "justify-center"
+    )}>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className={cn(
-            "w-full justify-start items-center gap-3 p-2",
-            state === 'collapsed' && "size-8 justify-center p-0"
+            "justify-start items-center gap-3 p-2",
+            state === 'expanded' ? "w-full" : "size-8 p-0"
         )}>
            <Avatar className="h-8 w-8">
             {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="@shadcn" data-ai-hint={userAvatar.imageHint} />}
@@ -42,9 +46,6 @@ export function UserNav() {
               test@example.com
             </span>
           </div>
-          <ChevronsLeft onClick={toggleSidebar} className={cn("ml-auto size-4 shrink-0 text-muted-foreground transition-transform group-hover/sidebar:text-foreground",
-            state === 'collapsed' && 'hidden'
-          )} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -78,5 +79,11 @@ export function UserNav() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+     <Button variant="ghost" size="icon" onClick={toggleSidebar} className={cn("size-8 shrink-0 text-muted-foreground transition-transform group-hover/sidebar:text-foreground",
+            state === 'collapsed' && 'hidden'
+          )}>
+        <ChevronsLeft />
+    </Button>
+    </div>
   );
 }
