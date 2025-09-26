@@ -44,46 +44,33 @@ import { useDashboardStore } from './store';
 
 const salesData = [
     // 2023 Data
-    { product: "Laptop", region: "North", sales: 50000, profit: 15000, month: "January", year: 2023 },
-    { product: "Phone", region: "North", sales: 120000, profit: 40000, month: "January", year: 2023 },
-    { product: "Tablet", region: "South", sales: 80000, profit: 25000, month: "February", year: 2023 },
-    { product: "Monitor", region: "South", sales: 60000, profit: 18000, month: "February", year: 2023 },
-    { product: "Laptop", region: "East", sales: 75000, profit: 22000, month: "March", year: 2023 },
-    { product: "Phone", region: "East", sales: 150000, profit: 55000, month: "March", year: 2023 },
-    { product: "Tablet", region: "West", sales: 90000, profit: 30000, month: "April", year: 2023 },
-    { product: "Monitor", region: "West", sales: 70000, profit: 20000, month: "April", year: 2023 },
-    { product: "Laptop", region: "North", sales: 55000, profit: 16000, month: "May", year: 2023 },
-    { product: "Phone", region: "South", sales: 130000, profit: 45000, month: "May", year: 2023 },
-    { product: "Accessories", region: "North", sales: 20000, profit: 8000, month: "June", year: 2023 },
-    { product: "Accessories", region: "South", sales: 25000, profit: 10000, month: "June", year: 2023 },
+    { product: "Laptop", region: "North", sales: 50000, profit: 15000, month: "January", year: 2023, customerId: 101, country: "USA" },
+    { product: "Phone", region: "North", sales: 120000, profit: 40000, month: "January", year: 2023, customerId: 102, country: "USA" },
+    { product: "Tablet", region: "South", sales: 80000, profit: 25000, month: "February", year: 2023, customerId: 103, country: "Canada" },
+    { product: "Monitor", region: "South", sales: 60000, profit: 18000, month: "February", year: 2023, customerId: 104, country: "Canada" },
+    { product: "Laptop", region: "East", sales: 75000, profit: 22000, month: "March", year: 2023, customerId: 105, country: "UK" },
+    { product: "Phone", region: "East", sales: 150000, profit: 55000, month: "March", year: 2023, customerId: 106, country: "UK" },
+    { product: "Tablet", region: "West", sales: 90000, profit: 30000, month: "April", year: 2023, customerId: 107, country: "Germany" },
+    { product: "Monitor", region: "West", sales: 70000, profit: 20000, month: "April", year: 2023, customerId: 108, country: "Germany" },
+    { product: "Laptop", region: "North", sales: 55000, profit: 16000, month: "May", year: 2023, customerId: 109, country: "USA" },
+    { product: "Phone", region: "South", sales: 130000, profit: 45000, month: "May", year: 2023, customerId: 110, country: "Canada" },
+    { product: "Accessories", region: "North", sales: 20000, profit: 8000, month: "June", year: 2023, customerId: 111, country: "USA" },
+    { product: "Accessories", region: "South", sales: 25000, profit: 10000, month: "June", year: 2023, customerId: 112, country: "Canada" },
 
     // 2024 Data
-    { product: "Laptop", region: "North", sales: 60000, profit: 18000, month: "January", year: 2024 },
-    { product: "Phone", region: "North", sales: 140000, profit: 48000, month: "January", year: 2024 },
-    { product: "Tablet", region: "South", sales: 85000, profit: 28000, month: "February", year: 2024 },
-    { product: "Monitor", region: "South", sales: 65000, profit: 20000, month: "February", year: 2024 },
-    { product: "Laptop", region: "East", sales: 80000, profit: 25000, month: "March", year: 2024 },
-    { product: "Phone", region: "East", sales: 160000, profit: 60000, month: "March", year: 2024 },
-    { product: "Tablet", region: "West", sales: 95000, profit: 32000, month: "April", year: 2024 },
-    { product: "Monitor", region: "West", sales: 75000, profit: 22000, month: "April", year: 2024 },
-    { product: "Laptop", region: "North", sales: 65000, profit: 20000, month: "May", year: 2024 },
-    { product: "Phone", region: "South", sales: 135000, profit: 47000, month: "May", year: 2024 },
-    { product: "Accessories", region: "East", sales: 30000, profit: 12000, month: "June", year: 2024 },
-    { product: "Accessories", region: "West", sales: 35000, profit: 14000, month: "June", year: 2024 },
+    { product: "Laptop", region: "North", sales: 60000, profit: 18000, month: "January", year: 2024, customerId: 113, country: "USA" },
+    { product: "Phone", region: "North", sales: 140000, profit: 48000, month: "January", year: 2024, customerId: 114, country: "USA" },
+    { product: "Tablet", region: "South", sales: 85000, profit: 28000, month: "February", year: 2024, customerId: 115, country: "Canada" },
+    { product: "Monitor", region: "South", sales: 65000, profit: 20000, month: "February", year: 2024, customerId: 116, country: "Canada" },
+    { product: "Laptop", region: "East", sales: 80000, profit: 25000, month: "March", year: 2024, customerId: 117, country: "UK" },
+    { product: "Phone", region: "East", sales: 160000, profit: 60000, month: "March", year: 2024, customerId: 118, country: "UK" },
+    { product: "Tablet", region: "West", sales: 95000, profit: 32000, month: "April", year: 2024, customerId: 119, country: "Germany" },
+    { product: "Monitor", region: "West", sales: 75000, profit: 22000, month: "April", year: 2024, customerId: 120, country: "Germany" },
+    { product: "Laptop", region: "North", sales: 65000, profit: 20000, month: "May", year: 2024, customerId: 121, country: "USA" },
+    { product: "Phone", region: "South", sales: 135000, profit: 47000, month: "May", year: 2024, customerId: 122, country: "Canada" },
+    { product: "Accessories", region: "East", sales: 30000, profit: 12000, month: "June", year: 2024, customerId: 123, country: "UK" },
+    { product: "Accessories", region: "West", sales: 35000, profit: 14000, month: "June", year: 2024, customerId: 124, country: "Germany" },
 ];
-
-
-const dimensions = [
-    { value: "product", label: "Product" },
-    { value: "region", label: "Region" },
-    { value: "month", label: "Month" },
-    { value: "year", label: "Year" },
-]
-
-const metrics = [
-    { value: "sales", label: "Sales" },
-    { value: "profit", label: "Profit" },
-]
 
 const chartTypes = [
     { value: "bar", label: "Bar Chart" },
@@ -137,7 +124,7 @@ const DropZone = ({ onDrop, children, className }: { onDrop: (item: any) => void
     )
 }
 
-const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartConfigState, onConfigChange: (newConfig: ChartConfigState) => void, onRemove: () => void }) => {
+const ChartComponent = ({ config, onConfigChange, onRemove, dimensions, metrics }: { config: ChartConfigState, onConfigChange: (newConfig: ChartConfigState) => void, onRemove: () => void, dimensions: {value: string, label: string}[], metrics: {value: string, label: string}[] }) => {
 
     const chartConfig: ChartConfig = useMemo(() => {
         const newChartConfig: ChartConfig = {};
@@ -148,22 +135,30 @@ const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartCon
             }
         });
         return newChartConfig;
-    }, [config.metrics]);
+    }, [config.metrics, metrics]);
     
     const aggregatedData = useMemo(() => {
+        if (!config.dimension) return [];
+
         const dataMap = new Map();
         salesData.forEach(item => {
             const key = item[config.dimension as keyof typeof item];
             if (!dataMap.has(key)) {
-                dataMap.set(key, { ...item, sales: 0, profit: 0 });
+                const initialData = { [config.dimension]: key };
+                 metrics.forEach(m => {
+                    (initialData as any)[m.value] = 0;
+                 });
+                dataMap.set(key, initialData);
             }
             const existing = dataMap.get(key);
-            existing.sales += item.sales;
-            existing.profit += item.profit;
+            metrics.forEach(m => {
+                existing[m.value] += (item as any)[m.value] || 0;
+            });
         });
 
-        return Array.from(dataMap.values()).sort((a,b) => (a[config.dimension as keyof typeof a] > b[config.dimension as keyof typeof b]) ? 1 : -1);
-    }, [config.dimension]);
+        // @ts-ignore
+        return Array.from(dataMap.values()).sort((a,b) => (a[config.dimension] > b[config.dimension]) ? 1 : -1);
+    }, [config.dimension, metrics]);
 
     const handleDrop = (item: { value: string, type: string }) => {
         if (item.type === 'dimension') {
@@ -262,7 +257,7 @@ const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartCon
                         <TableHeader>
                           <TableRow>
                             <TableHead className="capitalize">{config.dimension}</TableHead>
-                            {config.metrics.map(m => <TableHead key={m} className="text-right capitalize">{m}</TableHead>)}
+                            {config.metrics.map(m => <TableHead key={m} className="text-right capitalize">{metrics.find(metric => metric.value === m)?.label}</TableHead>)}
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -286,14 +281,36 @@ const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartCon
 }
 
 export default function Dashboard() {
-    const { charts, setCharts } = useDashboardStore();
+    const { charts, setCharts, dataSources } = useDashboardStore();
+    
+    const { dimensions, metrics } = useMemo(() => {
+        const activeSources = dataSources.filter(ds => ds.enabled);
+        const allDimensions = new Set<{ value: string, label: string }>();
+        const allMetrics = new Set<{ value: string, label: string }>();
+
+        activeSources.forEach(source => {
+            source.schema.forEach(col => {
+                const item = { value: col.id, label: col.label };
+                if (col.type === 'dimension') {
+                    allDimensions.add(item);
+                } else if (col.type === 'metric') {
+                    allMetrics.add(item);
+                }
+            });
+        });
+        
+        return { 
+            dimensions: Array.from(allDimensions).filter((dim, index, self) => self.findIndex(d => d.value === dim.value) === index),
+            metrics: Array.from(allMetrics).filter((met, index, self) => self.findIndex(m => m.value === met.value) === index)
+        };
+    }, [dataSources]);
     
     const addChart = () => {
         const newChart: ChartConfigState = {
             id: Date.now(),
-            dimension: 'region',
-            metrics: ['profit'],
-            chartType: 'line'
+            dimension: dimensions.length > 0 ? dimensions[0].value : '',
+            metrics: metrics.length > 0 ? [metrics[0].value] : [],
+            chartType: 'bar'
         };
         setCharts([...charts, newChart]);
     }
@@ -321,18 +338,27 @@ export default function Dashboard() {
                 <CardDescription>Drag these to the chart areas.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">
-                <div>
-                    <h3 className="font-semibold mb-2 text-sm">Dimensions</h3>
-                    <div className="grid gap-2">
-                        {dimensions.map(d => <DraggableItem key={d.value} item={d} type="dimension" />)}
+                {dimensions.length > 0 && (
+                    <div>
+                        <h3 className="font-semibold mb-2 text-sm">Dimensions</h3>
+                        <div className="grid gap-2">
+                            {dimensions.map(d => <DraggableItem key={d.value} item={d} type="dimension" />)}
+                        </div>
                     </div>
-                </div>
-                 <div>
-                    <h3 className="font-semibold mb-2 text-sm">Metrics</h3>
-                    <div className="grid gap-2">
-                        {metrics.map(m => <DraggableItem key={m.value} item={m} type="metric" />)}
+                )}
+                 {metrics.length > 0 && (
+                    <div>
+                        <h3 className="font-semibold mb-2 text-sm">Metrics</h3>
+                        <div className="grid gap-2">
+                            {metrics.map(m => <DraggableItem key={m.value} item={m} type="metric" />)}
+                        </div>
                     </div>
-                </div>
+                 )}
+                 {dimensions.length === 0 && metrics.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                        Enable a data source in the 'Data Sources' page to see available variables.
+                    </p>
+                 )}
             </CardContent>
         </Card>
         
@@ -343,6 +369,8 @@ export default function Dashboard() {
                     config={chart}
                     onConfigChange={(newConfig) => updateChart(chart.id, newConfig)}
                     onRemove={() => removeChart(chart.id)}
+                    dimensions={dimensions}
+                    metrics={metrics}
                 />
             ))}
         </div>

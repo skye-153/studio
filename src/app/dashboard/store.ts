@@ -11,6 +11,12 @@ type ChartConfigState = {
   chartType: string;
 };
 
+type DataColumn = {
+  id: string;
+  label: string;
+  type: 'dimension' | 'metric';
+}
+
 type DataSource = {
   name: string;
   type: string;
@@ -19,6 +25,7 @@ type DataSource = {
   enabled: boolean;
   rowLimit: number;
   totalRows: number;
+  schema: DataColumn[];
 };
 
 type Message = {
@@ -28,10 +35,56 @@ type Message = {
 
 // Initial data
 const initialDataSources: DataSource[] = [
-    { name: "Quarterly Sales CSV", type: "CSV", size: "2.3 MB", lastModified: "2 days ago", enabled: true, rowLimit: 100000, totalRows: 100000 },
-    { name: "User Demographics", type: "Excel", size: "1.1 MB", lastModified: "5 days ago", enabled: true, rowLimit: 50000, totalRows: 50000 },
-    { name: "Web Analytics Log", type: "XML", size: "15.8 MB", lastModified: "1 week ago", enabled: false, rowLimit: 1000000, totalRows: 1000000 },
-    { name: "Customer Feedback", type: "CSV", size: "500 KB", lastModified: "2 weeks ago", enabled: true, rowLimit: 25000, totalRows: 25000 },
+    { 
+        name: "Quarterly Sales CSV", 
+        type: "CSV", 
+        size: "2.3 MB", 
+        lastModified: "2 days ago", 
+        enabled: true, 
+        rowLimit: 100000, 
+        totalRows: 100000,
+        schema: [
+            { id: "product", label: "Product", type: "dimension" },
+            { id: "region", label: "Region", type: "dimension" },
+            { id: "month", label: "Month", type: "dimension" },
+            { id: "year", label: "Year", type: "dimension" },
+            { id: "sales", label: "Sales", type: "metric" },
+            { id: "profit", label: "Profit", type: "metric" },
+        ]
+    },
+    { 
+        name: "User Demographics", 
+        type: "Excel", 
+        size: "1.1 MB", 
+        lastModified: "5 days ago", 
+        enabled: true, 
+        rowLimit: 50000, 
+        totalRows: 50000,
+        schema: [
+            { id: "country", label: "Country", type: "dimension" },
+            { id: "customerId", label: "Customer ID", type: "metric" }
+        ]
+    },
+    { 
+        name: "Web Analytics Log", 
+        type: "XML", 
+        size: "15.8 MB", 
+        lastModified: "1 week ago", 
+        enabled: false, 
+        rowLimit: 1000000, 
+        totalRows: 1000000,
+        schema: []
+    },
+    { 
+        name: "Customer Feedback", 
+        type: "CSV", 
+        size: "500 KB", 
+        lastModified: "2 weeks ago", 
+        enabled: true, 
+        rowLimit: 25000, 
+        totalRows: 25000,
+        schema: []
+    },
 ];
 
 const initialMessages: Message[] = [
