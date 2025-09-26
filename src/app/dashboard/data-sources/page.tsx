@@ -15,11 +15,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Database, FileUp } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import { useDashboardState } from "../context/DashboardStateContext";
+import { useDashboardStore } from "../store";
 
 
 export default function DataSourcesPage() {
-  const { dataSources, setDataSources } = useDashboardState();
+  const { dataSources, setDataSources } = useDashboardStore();
 
   const handleToggle = (index: number) => {
     const newSources = [...dataSources];

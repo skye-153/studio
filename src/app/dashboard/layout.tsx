@@ -29,7 +29,6 @@ import { UserNav } from '@/components/user-nav';
 import { Icons } from '@/components/icons';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { usePathname } from 'next/navigation';
-import { DashboardStateProvider } from './context/DashboardStateContext';
 
 export default function DashboardLayout({
   children,
@@ -46,7 +45,6 @@ export default function DashboardLayout({
   ];
 
   return (
-    <DashboardStateProvider>
       <SidebarProvider>
         <Sidebar>
           <SidebarHeader>
@@ -94,6 +92,5 @@ export default function DashboardLayout({
           </main>
         </SidebarInset>
       </SidebarProvider>
-    </DashboardStateProvider>
   );
 }

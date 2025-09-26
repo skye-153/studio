@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { aiDataInsights } from '@/ai/flows/ai-data-insights';
 import { Icons } from '@/components/icons';
 import { BrainCircuit, Send } from 'lucide-react';
-import { useDashboardState } from '../context/DashboardStateContext';
+import { useDashboardStore } from '../store';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -34,14 +34,14 @@ export default function InsightsPage() {
     setInsightInput,
     isInsightLoading,
     setIsInsightLoading,
-  } = useDashboardState();
+  } = useDashboardStore();
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!insightInput.trim()) return;
 
     const userMessage: Message = { role: 'user', content: insightInput };
-    setInsightMessages((prev) => [...prev, userMessage]);
+    setInsightMessages([...insightMessages, userMessage]);
     setInsightInput('');
     setIsInsightLoading(true);
 
@@ -54,13 +54,13 @@ export default function InsightsPage() {
         role: 'assistant',
         content: result.insights,
       };
-      setInsightMessages((prev) => [...prev, assistantMessage]);
+      setInsightMessages([...insightMessages, userMessage, assistantMessage]);
     } catch (error) {
       const errorMessage: Message = {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.',
       };
-      setInsightMessages((prev) => [...prev, errorMessage]);
+      setInsightMessages([...insightMessages, userMessage, errorMessage]);
     } finally {
       setIsInsightLoading(false);
     }

@@ -40,7 +40,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useDashboardState } from './context/DashboardStateContext';
+import { useDashboardStore } from './store';
 
 const salesData = [
     // 2023 Data
@@ -286,7 +286,7 @@ const ChartComponent = ({ config, onConfigChange, onRemove }: { config: ChartCon
 }
 
 export default function Dashboard() {
-    const { charts, setCharts } = useDashboardState();
+    const { charts, setCharts } = useDashboardStore();
     
     const addChart = () => {
         const newChart: ChartConfigState = {

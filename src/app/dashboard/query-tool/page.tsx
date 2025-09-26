@@ -8,7 +8,7 @@ import { executeDataQuery } from '@/ai/flows/data-query';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useDashboardState } from '../context/DashboardStateContext';
+import { useDashboardStore } from '../store';
 
 export default function QueryToolPage() {
   const {
@@ -20,7 +20,7 @@ export default function QueryToolPage() {
     setQueryError,
     isQueryLoading,
     setIsQueryLoading,
-  } = useDashboardState();
+  } = useDashboardStore();
 
 
   const handleExecuteQuery = async () => {
@@ -89,7 +89,7 @@ export default function QueryToolPage() {
                     <Terminal className="h-4 w-4" />
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription>{queryError}</AlertDescription>
-                  </Aler
+                  </Alert>
                 )}
                 {queryResult && <pre className="whitespace-pre-wrap">{queryResult}</pre>}
                 {!isQueryLoading && !queryError && !queryResult && (
